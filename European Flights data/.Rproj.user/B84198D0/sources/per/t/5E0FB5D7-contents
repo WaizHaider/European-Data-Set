@@ -1,0 +1,477 @@
+---
+title: "DESIGN AND PROTOTYPE A DATA PIPELINE TO PROCESS AN OPEN DATASET"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+date: "2023-05-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part A. Prototype within Databricks
+
+A data pipeline is a set of end-to-end processes (or phases) that gather raw data from various sources and transmit the insights that have been unlocked from it to the intended location. The procedures may include: 
+
+• Data filtering 
+
+• Date aggregation
+
+• Improving data
+
+• Examining when it was in motion
+
+• Archiving or applying algorithms to the data
+
+A pipeline is a collection of processes, tools, and technologies used to transfer data from one system with its own manner of storage/processing to another system where the data may be retained and managed differently.
+![Data Pipeline](C:/Users/Waja-001/Downloads/1.png)
+
+## Data Pipeline Architecture
+
+Based on my understanding, this is how the data pipeline architecture should be designed conceptually. This describes the various steps and changes that a data set goes through, starting from its collection and ending with its deployment.
+
+![Data Pipeline Architecture Deplovement](C:/Users/Waja-001/Downloads/2.png)
+
+As a student, I understand that the architecture involves organising tools and technologies to connect different Data aggregation, processing, storage, analytics, and application development. This connection helps to provide precise and useful business insights. The data pipeline architecture comprises of core steps that require specific tools and frameworks. Here's an example.
+
+![Data Pipeline Architecture](C:/Users/Waja-001/Downloads/3.png)
+
+**• Collection**
+
+To begin, we gather pertinent information from different sources like remote devices, applications, and business systems. This data is then accessible through an API. In order to prevent data loss or duplication while in transit, event data is collected using message bus systems like Apache Kafka.
+
+**• Ingestion**
+
+Data is collected and sent to different entry points to be transported to the storage or processing layer. There are two ways to do it: batch blobs and streams. Batch ingestion is a process that loads and ingests data into repositories periodically in batches. Streaming takes in data immediately as it is created and analyses it for instant insights.
+Moreover, there might be tasks related to importing data from platforms such as Google Analytics. If you want to learn more, you can read this detailed blog about data ingestion.
+
+**• Preparation**
+
+Data manipulation is necessary to prepare it for analysis. Data can be cleaned, combined, converted to different file formats, and compressed for normalisation purposes. The data can be combined to offer only the most important pieces to users, making searches fast and cost-effective.
+
+**• Consumption**
+
+Once data preparation is complete, it is sent to production systems for further processing and querying. To simplify decision-making engines and user-facing apps like analytics, BI, visualisation, and more.
+While data is being transformed and processed, other tasks are being carried out. Data cleansing and transformation must be performed consistently, therefore workers must build in quality assurance checks, automate routine tasks, and set up governance mechanisms. Therefore, throughout the data pipeline, we also need to think about the following:
+
+Assessing the reliability of the information being used.
+At each stage of the data pipeline, the statistical distribution, anomalies, outliers, and other necessary tests are verified.
+
+Currently, I am studying cataloguing and search techniques.Information assets are placed in their proper context. A few examples of data storage architectures include data lakes, data warehouses, and message queues. Data may be stored and managed in these systems through the use of events, tables, and topics. Data profiling and cataloguing is done so that data scientists and engineers may have a better grasp of the data's format, history, and statistics (such as cardinality and missing values).
+
+**• Governance**
+
+After gathering data, it is important for companies to establish a system for managing data on a large scale, which is known as data governance. The procedure gives raw data some meaning by placing it in its proper business context, and then it oversees the data's quality and security in order to get it ready for wider usage. In addition, we make sure to adhere to security and governance policies at every stage of the data pipeline. This is to guarantee that the data remains secure, precise, accessible, and anonymized.
+
+**• Automation**
+
+Data pipeline automation is responsible for detecting errors, monitoring progress, and reporting status. This is accomplished by use of predetermined or unattended automated procedures.
+To further grasp the interplay between these parts, let's examine an in-depth example of AWS's data pipeline architecture.
+
+![Data Pipeline Architecture](C:/Users/Waja-001/Downloads/4.png)
+
+## Code
+
+**As The code is in Java so I commented it**
+
+```{r}
+
+# import java.util.ArrayList;
+# import java.util.Arrays;
+# import java.util.Collection;
+# import java.util.Collections;
+# import java.util.HashMap;
+# import java.util.Iterator;
+# import java.util.List;
+# import java.util.Map;
+# import java.util.Set;
+# 
+# import org.apache.log4j.Logger;
+# import org.apache.log4j.Level;
+# 
+# import org.apache.spark.SparkConf;
+# import org.apache.spark.api.java.JavaRDD;
+# import org.apache.spark.api.java.function.Function;
+# import org.apache.spark.streaming.Durations;
+# import org.apache.spark.streaming.api.java.JavaPairInputDStream;
+# import org.apache.spark.streaming.api.java.JavaStreamingContext;
+# import org.apache.spark.streaming.kafka.KafkaUtils;
+# import org.json.simple.JSONArray;
+# import org.json.simple.JSONObject;
+# import org.json.simple.parser.JSONParser;
+# 
+# import com.event.globals.Globals;
+# 
+# import beat.analyzer.Analysis;
+# import beat.analyzer.ProcessWindow;
+# import beat.analyzer.SignalProcessing;
+# import kafka.serializer.StringDecoder;
+# import scala.Tuple2;
+# 
+# public class HealthAnalyticsMain {
+# 
+# 	public static void main(String[] args) {
+# 		
+# 		 Logger.getLogger("org").setLevel(Level.OFF);
+# 		 Logger.getLogger("akka").setLevel(Level.OFF);
+# 		
+# 		 SparkConf conf = new SparkConf().setMaster("local[2]").setAppName("Kafka-sandbox");
+# 		 JavaStreamingContext jssc = new JavaStreamingContext(conf, Durations.seconds(5));
+# 		 
+# 		 //Todo Process pipleine
+# 		 
+# 		 Map<String, String> kafkaParams = new HashMap<>();
+# 		 kafkaParams.put("bootstrap.servers", "localhost:9092");
+# 		 
+# 		 Set<String> topics = Collections.singleton("test");//list of topics
+# 		 
+# 		 JavaPairInputDStream <String, String> directKafkaStream =KafkaUtils.createDirectStream(jssc, String.class, String.class, StringDecoder.class, StringDecoder.class, kafkaParams, topics);
+# 		 
+# 		 directKafkaStream.foreachRDD(rdd->{
+# 			 
+# 			 
+# 			 System.out.println("----New RDD with "+rdd.partitions().size()+" Paritions and "+rdd.count()+" records");
+# 			 
+# 			 JavaRDD<int []> rPeaksRDD = rdd.map(new Function<Tuple2<String,String>, int[]>() {
+# 			
+# 
+# 				@Override
+# 				public int [] call(Tuple2<String, String> arg0) throws Exception {
+# 					// TODO Auto-generated method stub
+# 					 int[] rPeaks=null;
+# 					 double [] ECG_values = new double[3000];
+# 					 
+# 					try{
+# 						
+# 						 Globals.size=0;
+# 						 
+# 					  
+# 					
+# 					    JSONParser parser = new JSONParser();
+# 					    JSONArray jsonarray=(JSONArray)parser.parse(arg0._2);
+# 					    Iterator i = jsonarray.iterator();
+#                         int siz=0;
+# 				        while (i.hasNext()) { //arg0._2 is a json array of size 2500
+# 				            
+# 							 JSONObject obj= (JSONObject) i.next();
+# 							 //Globals.ECG_values[Globals.size] = (double) obj2.get("DataValueDouble");
+# 							 ECG_values[siz]=(double) obj.get("DataValueDouble");
+# 						     siz=(siz+1)%3000;//cannot go more than the allocated array size 
+# 				        }//end while
+# 					    
+# 				       
+# 				        rPeaks = SignalProcessing.findRPeaks(ECG_values);
+# 						
+# 				        
+# 					 
+# 					}//end try
+# 					catch(Exception e)
+# 					{
+# 						e.printStackTrace();
+# 					}
+# 					 
+# 					
+# 					return rPeaks;
+# 				}
+# 				  
+# 			 });
+# 			 double [] ECG_values = new double[2500];
+# 			 
+# 			 JavaRDD<int []> pqrstPointsRDD = rdd.map(new Function<Tuple2<String,String>, int[]>() {
+# 					
+# 
+# 				@Override
+# 				public int [] call(Tuple2<String, String> arg0) throws Exception {
+# 					// TODO Auto-generated method stub
+# 					 int[] pqrstPoints=null;
+# 					
+# 					 
+# 					try{
+# 						
+# 						 Globals.size=0;
+# 					
+# 					    JSONParser parser = new JSONParser();
+# 					    JSONArray jsonarray=(JSONArray)parser.parse(arg0._2);
+# 					    Iterator i = jsonarray.iterator();
+#                         int siz=0;
+# 				        while (i.hasNext()) { //arg0._2 is a json array of size 2500
+# 
+# 							JSONObject obj = (JSONObject) i.next();
+# 							ECG_values[siz] = (double) obj.get("DataValueDouble");
+# 							siz = (siz + 1) % 2500;
+# 						}
+# 					    
+# 				       
+# 				        pqrstPoints = SignalProcessing.findECGPoints(ECG_values);
+# 						
+# 				        
+# 					 
+# 					}
+# 					catch(Exception e)
+# 					{
+# 						e.printStackTrace();
+# 					}
+# 					 
+# 					
+# 					return pqrstPoints;
+# 				}
+# 				  
+# 			 });
+# 			 
+# 			
+# 			 
+# 			 
+# 			 JavaRDD<Double> windowHRRDD = rPeaksRDD.map(new Function<int[], Double>() {
+# 
+# 				@Override
+# 				public Double call(int[] rPeaks) throws Exception {
+# 					// TODO Auto-generated method stub
+# 					
+# 					double windowHRR=0;
+# 					
+# 					try{
+# 					
+# 						windowHRR=Analysis.calcHR(rPeaks);
+# 						
+# 					}
+# 					catch(Exception e)
+# 					{
+# 						e.printStackTrace();
+# 					}
+# 					
+# 					return windowHRR;
+# 				}
+# 			   });
+# 			 
+# 			 
+# 			 
+# 			 JavaRDD<Double> windowHRVRDD = rPeaksRDD.map(new Function<int[], Double>() {
+# 
+# 					@Override
+# 					public Double call(int[] rPeaks) throws Exception {
+# 						// TODO Auto-generated method stub
+# 						
+# 						double windowHRRV=0;
+# 						
+# 						try{
+# 						
+# 							windowHRRV=Analysis.calcHRV(rPeaks);
+# 							
+# 						}
+# 						catch(Exception e)
+# 						{
+# 							e.printStackTrace();
+# 						}
+# 						
+# 						return windowHRRV;
+# 					}
+# 				   });
+# 				 
+# 				
+# 				 
+# 				 JavaRDD<Double> stressIdxRDD = windowHRVRDD.map(new Function<Double, Double>() {
+# 
+# 						@Override
+# 						public Double call(Double windowHRV) throws Exception {
+# 							// TODO Auto-generated method stub
+# 							
+# 							double stressIdx=0;
+# 							
+# 							try{
+# 							
+# 								stressIdx=Analysis.calcStress(windowHRV);
+# 								
+# 							}
+# 							catch(Exception e)
+# 							{
+# 								e.printStackTrace();
+# 							}
+# 							
+# 							return stressIdx;
+# 						}
+# 					   });
+# 
+# 				 stressIdxRDD.foreach(record->
+# 					 {
+# 						  //record._2 is the json string
+# 						
+# 						 System.out.println("Stress Index is:"+record);
+# 						
+# 					 });//end foreach
+# 					 
+# 			 
+# 				 
+# 				 /* Predicting the Heart Risk */
+# 				 HashMap<String, Double> windowFeatures = new HashMap<>();
+# 				 try{
+# 					 
+# 					 if(rPeaksRDD.count()>0)
+# 					 {
+# 						 int [] rPeaks=rPeaksRDD.first();
+# 						 windowFeatures.put("ECG_HR", Analysis.calcHR(rPeaks));// FIXME: add real hear-rate value
+# 						 windowFeatures.put("ECG_BASE", SignalProcessing.findBase(ECG_values));// FIXME: add real hear-rate value
+# 				         windowFeatures.put("ECG_P_X", (double) (pqrstPointsRDD.first()[0]));
+# 				         windowFeatures.put("ECG_P_Y", ECG_values[pqrstPointsRDD.first()[0]]);
+# 				         windowFeatures.put("ECG_Q_X", (double) (pqrstPointsRDD.first()[1]));
+# 				         windowFeatures.put("ECG_Q_Y", ECG_values[pqrstPointsRDD.first()[1]]);
+# 				         windowFeatures.put("ECG_R_X", (double) (pqrstPointsRDD.first()[2]));
+# 				         windowFeatures.put("ECG_R_Y", ECG_values[pqrstPointsRDD.first()[2]]);
+# 				         windowFeatures.put("ECG_S_X", (double) (pqrstPointsRDD.first()[3]));
+# 				         windowFeatures.put("ECG_S_Y", ECG_values[pqrstPointsRDD.first()[3]]);
+# 				         windowFeatures.put("ECG_T_X", (double) (pqrstPointsRDD.first()[4]));
+# 				         windowFeatures.put("ECG_T_Y", ECG_values[pqrstPointsRDD.first()[4]]);
+# 				         // predict risk
+# 			                double windowRisk = Analysis.predictRisk(windowFeatures);
+# 			                
+# 			                System.out.println("Heart Risk is:"+windowRisk);
+# 					 }//end if
+# 	                
+# 				 }//end try
+# 				 catch(Exception e)
+# 				 {
+# 					 e.printStackTrace();
+# 				 }
+# 	            });
+# 		 jssc.start();
+# 		 
+# 		 try {
+# 			jssc.awaitTermination();
+# 		} catch (InterruptedException e) {
+# 			 e.printStackTrace();
+# 		}
+# 		 
+# 		 
+# 	}
+# 	
+# }
+```
+
+
+## Part B. Cloud data pipeline Design Report
+
+## In-house-On-premise
+
+When you build your own data pipeline, you have to buy and set up all the gear and software for your own private data centre. You must also take care of its maintenance, which includes things like backup, recovery, pipeline health checks, capability expansion, and so on. Spending the time and energy required will pay off in the end by giving you full command of the data stream.
+
+However, there is a special set of challenges associated with on-premises data pipelines. When it comes to APIs, for instance, different data providers employ a wide range of options. This means that if a new data source is added or a vendor's API is updated, developers must either create new code or rewrite their existing code from scratch. Other difficulties may stem from issues like slowness, inability to scale, high latency, lack of flexibility, or constant upkeep.
+
+![In-house/On-premise](C:/Users/Waja-001/Downloads/5.png)
+
+## Cloud
+
+There is a possibility that modern data pipelines may call for an architecture that is capable of handling workloads in parallel and has resources that are dispersed over several independent clusters. The clusters have the potential to swiftly expand both in size and quantity.
+In this context, depending on the cloud might make it possible for organisations to autonomously grow their storage and computing resources. Because additional resources can be added instantly to support an increase in data volume, it is also simpler to estimate how long it will take to process the data. Data security, near-zero downtime, agility, and other benefits are also potential advantages.
+On the other hand, there are potential drawbacks, such as being locked in with a particular vendor and the high expense of moving providers in the event that a solution does not fulfil your requirements.
+
+## Data Pipeline vs. ETL
+
+Data pipeline and ETL are two examples of terminology that are often used interchangeably. But ETL is only a subset of data pipelines, and these other features are what truly differentiate them.
+
+**ETL**
+
+• ETL is an acronym that stands for extract, transform, and load, and it refers to the precise order.
+
+**The term "extract"** refers to the process of pulling raw data from its sources.
+
+**The term "transform"** refers to the process of modifying the format of raw data so that it is compatible with the format of the destination system.
+
+A database, data lake, or software programme may be the intended recipients of the information.
+
+![ETL Pipeline](C:/Users/Waja-001/Downloads/6.png)
+
+On the other hand, this order is not necessarily adhered to by all data pipelines. One such example is the extract, load, and transform, or ELT, process. The proliferation of cloud-native solutions has contributed to the rise in popularity of ELT pipelines.
+
+• Typical ETL procedures involve batch processing being put to use.Cases where batching and previous data are used are able to receive help from ETL. In addition to this, it is suitable for use with tiny data sets that call for sophisticated transformations. Nevertheless, as we've seen in the previous section, The breadth of data pipelines expands to encompass stream. 
+In other circumstances, transformations are made to the data after it has already been imported into the cloud data warehouse. This is still the case with ETL pipelines, where data intake comes first. This method, known as ELT (which stands for extract, load, and transform), varies from ETL in the order in which the procedures are carried out. It may be suitable in situations with huge, unstructured datasets where speed and timeliness are important factors in the analysis.
+
+![ETL Pipeline](C:/Users/Waja-001/Downloads/7.png)
+
+## Data Pipeline Use Cases
+
+The architecture of data pipelines may be designed in a variety of different ways. There are three primary types of data pipelines: batch-based pipelines, real-time streaming pipelines, and hybrid pipelines that combine the two. In the following paragraphs, common examples of each sort of pipeline will be given.
+Batch data pipeline
+
+Batching pipelines, also known as batch processing pipelines, transport data in blocks, or batches, from sources to destinations, either on a one-time basis or on a regularly scheduled basis. batches are queried for data exploration and visualisation whenever they are available for access (once they have been stored and transformed). Batches are often set to run automatically according to a predetermined schedule or prompted by a user query or an application.
+
+![ETL Pipeline Example](C:/Users/Waja-001/Downloads/8.png)
+
+## Reasons to Use Batch Information Systems
+
+The three main scenarios in which batch processing jobs shine are as follows: a) when there is a large volume of datasets; b) when there is a complex analysis of a large dataset; c) when there is a need to explore and gain insights from information or activities that occurred in the past; and d) when there is no immediate need to analyse specific datasets. b) There is no pressing need to perform such an analysis at this time.
+
+• When time is not an integral part of the equation, like in billing or payroll. Reports that aren't updated often but rely heavily on historical information.
+
+By way of illustration, the Indonesian healthcare app **Halodoc** uses batch pipelines to routinely move all pertinent data, which may contain sensitive information and is primarily comprised of transaction data, from their millions of users to their data warehouse. The next phase is to analyse and make quick choices based on the data after they have been aggregated, stored, and converted. Halodoc's batch pipeline follows this design:
+![Halodoc Example](C:/Users/Waja-001/Downloads/9.png)
+
+## Streaming Pipeline
+
+By continually gathering data from a broad range of sources, such as the change streams provided by a database or the events generated by messaging systems and sensors, streaming pipelines make real-time analysis feasible. Metrics, aggregate statistics, and reports are all updated in real-time as new data becomes available.
+
+The following design is what you may expect from a pipeline that is built on streaming:
+
+![Streaming Pipeline Example](C:/Users/Waja-001/Downloads/10.png)
+
+They are optimised for real-time processing at the origins from where the data is gathered. Thus, it permits • Real-time analysis, business intelligence, and decision making • Smart, real-time monitoring of infrastructure performance to avoid lags, such as in a fleet management business operating telematics systems • Data to be continuously updated (for instance, applications or point-of-sale systems that need real-time data to update inventory and sales history of products) • When it is essential for businesses to react instantly to user activity o When up-to-date information is crucial for businesses to
+The following is an example of a serverless data pipeline in AWS for gathering real-time IoT data streams in order to do analytics for corrective actions and alarm messages. Amazon Kinesis Data Streams and Amazon Kinesis Firehouse are just two of the many data ingestion techniques used to guarantee that data is continuously being supplied to Snowflake.
+
+![Streaming Pipeline Use Case](C:/Users/Waja-001/Downloads/11.png)
+
+For the pharmaceutical sector, Simform developed a market intelligence system that was driven by tweets as an example of real-world use. In order to give real-time insights and time-saving analyses, we needed to collect and analyse millions of raw tweets from KOLs based on many criteria and moods.
+As a result, we incorporated Twitter's history PowerTrack API, which provides access to Twitter's whole history archive of public data. at addition, we devised a mechanism that will collect this information at intervals of 500 tweets every two hours.
+
+## Lambda Architecture
+
+The Lambda architecture takes a hybrid approach, which enables both real-time use cases and historical batch analysis. This design is quite popular in large data contexts. In order to make this process easier, it consists of three layers: the batch layer, the streaming or speed layer, and the data intake consumption layer. In addition to this, it possesses a service layer that combines the outcomes of both the batch and streaming levels to provide unified results that are needed.
+![Lambda Architecture](C:/Users/Waja-001/Downloads/12.png)
+
+The Lambda design encourages the storage of data in its raw format, which is another important feature of this architecture. As a result, you are able to consistently run new pipelines to rectify any faults that may have occurred in the previous pipelines or add additional data sources to enable new sorts of queries.
+
+## Case studies of applications for the Lambda architecture: 
+
+It is possible to make efficient use of it to achieve accurate and complete perspectives by batching and analysing data on the fly. This may be accomplished by successfully balancing throughput, latency, scalability, and fault tolerance.
+
+The following is an illustration of what a Lambda architecture will look like when it is equipped with data pipeline tools.
+![Lambda Architecture Use Case](C:/Users/Waja-001/Downloads/13.png)
+
+## Data Pipeline Tools
+
+It's possible that a data pipeline may be constructed for a straightforward procedure of data extraction and loading. It is also possible to programme it to deal with data in a more sophisticated manner, for example, to teach machine learning algorithms using datasets. The selection of tools and technologies is contingent on a wide variety of parameters, including but not limited to data quantities, use cases for the pipeline, organisation size and sector, budget, and so on. The following is a list of common tools for data pipelines.
+
+**• Tools for the acquisition of data**
+
+Ingestion and consumption layers can make use of technologies like Apache Kafka, Flume, HDFS, Amazon Kinesis, and others. If you want to load streaming data into data stores (or data lakes, etc.), you may use a service like Amazon Kinesis Firehose, which is entirely managed by AWS and grows automatically. It also offers some additional benefits.
+
+**• ETL tools**
+
+Data integration and preparation tools like AWS Glue, Talend Open Studio, Pentaho Data Integration, and dozens of others may be provided. For instance, Glue is a managed ETL solution that efficiently extracts and loads data for analytical purposes.
+
+**• Applications for streaming in real time**
+
+Many different programmes are included, including but not limited to Apache Storm, Kafka, Google Data Flow, Amazon Kinesis, and Microsoft Azure Stream Analytics. Kinesis Data Streams, for instance, facilitates the gathering, ingestion, and analysis of real-time streaming data, allowing users to act promptly.
+
+**• Workflow schedulers** 
+
+batches that deal with It includes a number of useful utilities, including Luigi. Spotify's own Luigi facilitates the coordination of many different types of tasks, including as Hive searches, Spark jobs, and more.
+
+**• Data warehouses** 
+
+This category comprises repositories that hold data that has been converted for a particular purpose and includes Amazon Redshift, Google BigQuery, Azure Synapse, Snowflake, and many more.
+
+**• Data lakes** 
+
+This feature saves unprocessed data in its original format until it is required for analysis. Data lakes are offered by major cloud service providers such as AWS, Microsoft Azure, Google Cloud, and others for storing enormous amounts of data.
+
+**• Big Data tools**
+
+It incorporates technologies that facilitate end-to-end large data flows and are derived from each of the aforementioned areas. It may consist of Spark and Hadoop as well as other platforms for batch processing, Apache HBase and Cassandra for storing and managing enormous volumes of data, and a great deal of additional software applications. By way of illustration, Apache Airflow's workflow engine makes it simple to schedule and run even the most complicated data or ETL processes.
+
+
+
+

@@ -1,0 +1,2 @@
+"0","library(dplyr)"
+"0","Before_Covid <- filter(flights, YEAR == ""2016"" | YEAR == ""2017"" | YEAR == ""2018"" | YEAR == ""2019"" )"

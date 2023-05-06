@@ -1,0 +1,34 @@
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+install.packages("flights")
+flights <- read.csv("F:/Data Work/flights.csv")
+data('flights')
+View(flights)
+installed.packages("tidyverse")
+install.packages("ggplot2")
+ggplot(data = In_Covid) + geom_point(mapping = aes(x = YEAR, y = MONTH_MON,
+                                                 color = STATE_NAME))
+ggplot(data = central_europe)+geom_bar(mapping = aes(x = YEAR, y = MONTH_MON, color = STATE_NAME))
+ggplot(data = Before_Covid, aes(x = YEAR)) +
+  geom_density(fill = "lightblue", color = "darkblue") +
+  labs(x = "Year", y = "Number of Flights", title = "Before COvid Flights Trend in Europe", caption = "")
+ggplot(Before_Covid, aes(x = YEAR, y = FLT_DEP_1)) +
+  geom_bar(fill = "blue") +
+  xlab("YEAR") +
+  ylab("Value") +
+  ggtitle("Barplot of Group vs. Value")
+FLT_DEP_1_Total <- sum(Before_Covid$FLT_DEP_1)
+Before_Covid <- rbind(Before_Covid, data.frame(FLT_DEP_1 = FLT_DEP_1_Total)
+ggplot(data = Before_Covid, aes(x = YEAR, y = MONTH_MON)) +
+  geom_point() +
+  xlab("X") +
+  ylab("Y") +
+  ggtitle("Scatterplot of X vs. Y")
+After_Covid <- filter(flights, YEAR == "2022")
+                      
+ggplot(data = In_Covid) + geom_point(mapping = aes(x = YEAR, y = MONTH_MON,
+                      color = FLT_DEP_1))+labs(title = "Power Plants in Africa",
+                        subtitle = "Geographical Location and Abundance",
+                        caption = "World Resources Institue")

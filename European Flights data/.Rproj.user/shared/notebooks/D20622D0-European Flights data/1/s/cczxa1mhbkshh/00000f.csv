@@ -1,0 +1,4 @@
+"0","library(ggplot2)"
+"0","ggplot(data = Before_Covid, aes(x = YEAR)) +"
+"0","  geom_density(fill = ""lightblue"", color = ""darkblue"") +"
+"0","  labs(x = ""Year"", y = ""Number of Flights"", title = ""Before COvid Flights Trend in Europe"", caption = ""jthomasmock github"")"
